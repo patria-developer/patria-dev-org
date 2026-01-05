@@ -56,12 +56,6 @@
       "destination": "/api/$1"
     }
   ],
-  "functions": {
-    "src/pages/api/*.ts": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  },
   "env": {
     "RESEND_API_KEY": "placeholder_for_production_env_var"
   }
