@@ -1,5 +1,6 @@
 ---
 import Section from '../ui/Section.astro';
+import Button from '../ui/Button.astro';
 import { getLangFromRequest, useTranslations } from '../../i18n/utils';
 
 const lang = getLangFromRequest(Astro);
@@ -53,9 +54,9 @@ const t = useTranslations(lang);
         </div>
       </div>
       
-      <button class="w-full py-4 rounded-xl bg-secondary-trust text-white font-bold hover:bg-opacity-90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+      <Button variant="primary">
         {t('upcoming.register')}
-      </button>
+      </Button>
     </div>
   </div>
 </Section>
