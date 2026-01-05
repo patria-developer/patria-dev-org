@@ -3,9 +3,43 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
 
+// Simple in-memory rate limiting for development/demo
+// In production with Vercel, ideally use @vercel/kv or Upstash
+const RATE_LIMIT_WINDOW = 3600 * 1000; // 1 hour
+const RATE_LIMIT_MAX = 2; // 2 requests per hour
+const ipRequests = new Map<string, { count: number; expires: number }>();
+
+const checkRateLimit = (ip: string) => {
+  const now = Date.now();
+  const record = ipRequests.get(ip);
+
+  if (!record || now > record.expires) {
+    ipRequests.set(ip, { count: 1, expires: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+
+  if (record.count >= RATE_LIMIT_MAX) {
+    return false;
+  }
+
+  record.count++;
+  return true;
+};
+
 const resend = new Resend(import.meta.env.RESEND_API_KEY);
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, clientAddress }) => {
+  // Rate Limit Check
+  const ip = clientAddress || 'unknown';
+  if (!checkRateLimit(ip)) {
+    return new Response(
+      JSON.stringify({
+        message: "Too many requests. Please try again later.",
+      }),
+      { status: 429 }
+    );
+  }
+
   const data = await request.formData();
   const name = data.get('name') as string;
   const email = data.get('email') as string;
