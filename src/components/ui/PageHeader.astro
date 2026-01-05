@@ -1,0 +1,50 @@
+---
+import Section from './Section.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<Section bg="surface" class="pt-32 pb-12 text-center">
+  <h1 class="text-4xl lg:text-5xl font-headings font-bold text-secondary-trust mb-4 animate-fade-in">{title}</h1>
+  {description && (
+    <p class="text-gray-600 max-w-2xl mx-auto text-lg animate-fade-in-with-delay">
+      {description}
+    </p>
+  )}
+</Section>
+
+<script>
+  import { gsap } from "gsap";
+  
+  // Header Animation
+  const fadeInElements = document.querySelectorAll(".animate-fade-in");
+  const fadeInWithDelayElements = document.querySelectorAll(".animate-fade-in-with-delay");
+
+  if (fadeInElements.length > 0) {
+    gsap.from(fadeInElements, {
+      y: 30,
+      opacity: 0,
+      duration: 1,
+      stagger: 0.2,
+      ease: "power3.out",
+      clearProps: "all"
+    });
+  }
+
+  if (fadeInWithDelayElements.length > 0) {
+    gsap.from(fadeInWithDelayElements, {
+      y: 30,
+      opacity: 0,
+      duration: 1,
+      stagger: 0.2,
+      ease: "power3.out",
+      clearProps: "all",
+      delay: 0.5
+    });
+  }
+</script>
