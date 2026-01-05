@@ -21,6 +21,19 @@ const { title = siteConfig.title } = Astro.props;
 		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+    <script is:inline>
+      // Check localStorage for language preference
+      if (typeof window !== 'undefined') {
+        const storedLang = localStorage.getItem('language');
+        const currentPath = window.location.pathname;
+        
+        if (storedLang === 'en' && !currentPath.startsWith('/en')) {
+           window.location.href = `/en${currentPath === '/' ? '' : currentPath}`;
+        } else if (storedLang === 'id' && currentPath.startsWith('/en')) {
+           window.location.href = currentPath.replace(/^\/en/, '') || '/';
+        }
+      }
+    </script>
 	</head>
 	<body class="bg-background text-text-main font-body antialiased selection:bg-primary selection:text-white overflow-x-hidden">
 		<Navbar />
