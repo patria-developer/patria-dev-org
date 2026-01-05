@@ -3,6 +3,7 @@ import { siteConfig, socialLinks } from '../../data/site';
 import Section from '../ui/Section.astro';
 import { getLangFromRequest, useTranslations } from '../../i18n/utils';
 import { Image } from 'astro:assets';
+import Button from '../ui/Button.astro';
 
 const lang = getLangFromRequest(Astro);
 const t = useTranslations(lang);
@@ -103,9 +104,9 @@ const t = useTranslations(lang);
         
         <div id="form-message" class="hidden rounded-lg p-4 text-sm font-medium"></div>
 
-        <button type="submit" id="submit-btn" class="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary-light transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed">
+        <Button type="submit" id="submit-btn" block={true} size="lg">
           {t('contact.form.submit')}
-        </button>
+        </Button>
       </form>
     </div>
     
