@@ -2,7 +2,7 @@ export const events = [
   {
     title: "WFC (Work From Cafe)",
     date: "Setiap Selasa",
-    isoDate: "2025-01-07", // Recurring, but useful for sorting if next occurrence
+    isoDate: "2026-01-13", // Next Tuesday occurrence
     time: "13:00 - Selesai",
     location: "Rotasi Cafe (Info di Grup)",
     type: "WFC",
@@ -11,9 +11,9 @@ export const events = [
     image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=200&auto=format&fit=crop"
   },
   {
-    title: "Patria Dev Meetup #12",
-    date: "12 Januari 2025",
-    isoDate: "2025-01-12",
+    title: "Patria Dev Meetup #15",
+    date: "18 Januari 2026",
+    isoDate: "2026-01-18",
     time: "09:00 - 12:00",
     location: "Creative Hub Blitar",
     type: "Meetup",
@@ -23,8 +23,8 @@ export const events = [
   },
   {
     title: "Workshop UI/UX Fundamentals",
-    date: "26 Januari 2025",
-    isoDate: "2025-01-26",
+    date: "25 Januari 2026",
+    isoDate: "2026-01-25",
     time: "13:00 - 16:00",
     location: "Cafe Ruang Tuang",
     type: "Workshop",
@@ -33,9 +33,9 @@ export const events = [
     image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=200&auto=format&fit=crop"
   },
   {
-    title: "Blitar Hackathon 2025",
-    date: "15 Februari 2025",
-    isoDate: "2025-02-15",
+    title: "Blitar Hackathon 2026",
+    date: "15 Februari 2026",
+    isoDate: "2026-02-15",
     time: "24 Hours",
     location: "Gedung Kesenian",
     type: "Hackathon",
@@ -47,9 +47,9 @@ export const events = [
 
 export const pastEvents = [
   {
-    title: "Patria Dev Meetup #11: Intro to AI",
-    date: "15 Desember 2024",
-    isoDate: "2024-12-15",
+    title: "Patria Dev Meetup #14: Intro to AI",
+    date: "15 Desember 2025",
+    isoDate: "2025-12-15",
     time: "09:00 - 12:00",
     location: "Amphitheater Perpus Bung Karno",
     type: "Meetup",
@@ -59,8 +59,8 @@ export const pastEvents = [
   },
   {
     title: "Web Dev Workshop: React Basics",
-    date: "10 November 2024",
-    isoDate: "2024-11-10",
+    date: "10 November 2025",
+    isoDate: "2025-11-10",
     time: "10:00 - 15:00",
     location: "Coworking Space Blitar",
     type: "Workshop",
@@ -70,8 +70,8 @@ export const pastEvents = [
   },
   {
     title: "Tech Talk: Career in Tech",
-    date: "20 Oktober 2024",
-    isoDate: "2024-10-20",
+    date: "20 Oktober 2025",
+    isoDate: "2025-10-20",
     time: "19:00 - 21:00",
     location: "Online (Zoom)",
     type: "Webinar",

@@ -1,0 +1,108 @@
+---
+interface Props {
+  tabs: {
+    id: string;
+    label: string;
+  }[];
+  defaultTab?: string;
+  class?: string;
+  id?: string;
+}
+
+const { tabs, defaultTab, class: className = '', id = 'tabs-container' } = Astro.props;
+const activeTab = defaultTab || tabs[0]?.id;
+---
+
+<div class:list={["w-full lg:w-auto flex bg-gray-100 rounded-xl", className]} id={id} data-tabs-container={id}>
+  {tabs.map(tab => (
+    <button 
+      class:list={[
+        "px-4 py-2 md:px-3 lg:px-6 lg:py-3 rounded-lg text-sm font-bold transition-all cursor-pointer w-full lg:w-auto",
+        tab.id === activeTab 
+          ? "bg-white text-primary shadow-sm" 
+          : "text-gray-500 hover:text-gray-700"
+      ]}
+      data-tab={tab.id}
+    >
+      {tab.label}
+    </button>
+  ))}
+</div>
+
+<script>
+  class TabManager {
+    container: HTMLElement;
+    buttons: NodeListOf<Element>;
+
+    constructor(container: HTMLElement) {
+      this.container = container;
+      this.buttons = container.querySelectorAll('[data-tab]');
+      this.init();
+    }
+
+    init() {
+      // 1. Check URL for initial tab state
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = urlParams.get('tab');
+      
+      if (tabParam) {
+        // Verify the tab exists in this container
+        const targetBtn = Array.from(this.buttons).find(btn => (btn as HTMLElement).dataset.tab === tabParam);
+        if (targetBtn) {
+          this.setActiveTab(tabParam, false); // Don't push state on init
+        }
+      }
+
+      // 2. Add click listeners
+      this.buttons.forEach((btn: Element) => {
+        btn.addEventListener('click', () => {
+          this.setActiveTab((btn as HTMLElement).dataset.tab!, true);
+        });
+      });
+
+      // 3. Handle browser back/forward buttons
+      window.addEventListener('popstate', () => {
+        const params = new URLSearchParams(window.location.search);
+        const currentTab = params.get('tab');
+        if (currentTab) {
+           const targetBtn = Array.from(this.buttons).find(btn => (btn as HTMLElement).dataset.tab === currentTab);
+           if (targetBtn) {
+             this.setActiveTab(currentTab, false);
+           }
+        }
+      });
+    }
+
+    setActiveTab(tabId: string, updateUrl: boolean = true) {
+      // Update UI
+      this.buttons.forEach((btn: Element) => {
+        const isTarget = (btn as HTMLElement).dataset.tab === tabId;
+        if (isTarget) {
+          btn.classList.add('bg-white', 'text-primary', 'shadow-sm');
+          btn.classList.remove('text-gray-500', 'hover:text-gray-700');
+        } else {
+          btn.classList.remove('bg-white', 'text-primary', 'shadow-sm');
+          btn.classList.add('text-gray-500', 'hover:text-gray-700');
+        }
+      });
+
+      // Update URL if requested
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('category', tabId);
+        window.history.pushState({}, '', url);
+      }
+
+      // Dispatch custom event for parent components to listen to
+      this.container.dispatchEvent(new CustomEvent('tab-change', {
+        detail: { tabId },
+        bubbles: true
+      }));
+    }
+  }
+
+  // Initialize all tab containers
+  document.querySelectorAll('[data-tabs-container]').forEach(el => {
+    new TabManager(el as HTMLElement);
+  });
+</script>

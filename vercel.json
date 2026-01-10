@@ -54,9 +54,10 @@
     {
       "source": "/api/(.*)",
       "destination": "/api/$1"
+    },
+    {
+      "source": "/admin/(.*)",
+      "destination": "/admin/index.html"
     }
-  ],
-  "env": {
-    "RESEND_API_KEY": "placeholder_for_production_env_var"
-  }
+  ]
 }

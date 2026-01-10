@@ -1,11 +1,11 @@
 ---
-import { siteConfig, socialLinks } from '../../data/site';
-import Section from '../ui/Section.astro';
-import { getLangFromRequest, useTranslations } from '../../i18n/utils';
 import { Image } from 'astro:assets';
+import { siteConfig, socialLinks } from '../../data/site';
+import { getLangFromUrl, useTranslations } from '../../i18n/utils';
 import Button from '../ui/Button.astro';
+import Section from '../ui/Section.astro';
 
-const lang = getLangFromRequest(Astro);
+const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 ---
 
@@ -114,9 +114,6 @@ const t = useTranslations(lang);
 </Section>
 
 <script>
-  import { ui, defaultLang } from '../../i18n/ui';
-  import { getLangFromRequest } from '../../i18n/utils';
-
   // Helper to get translation client-side
   // Note: This is a simplified version since we can't easily share the exact same utils in client script tag
   // We can pass the current lang messages as a data attribute or JSON script if needed.

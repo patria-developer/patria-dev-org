@@ -11,7 +11,7 @@ export const ui = {
     'nav.event': 'Event',
     'nav.about': 'Tentang Kami',
     'nav.contact': 'Kontak',
-    'nav.join': 'Gabung Sekarang',
+    'nav.join': 'Bergabung',
     'footer.desc': 'Coding Bareng, Tumbuh Bareng di Blitar.',
     'footer.nav': 'Navigasi',
     'footer.contact': 'Hubungi Kami',
@@ -62,13 +62,15 @@ export const ui = {
     'event.filter.wfc': 'WFC',
     'event.load_more': 'Muat Lebih Banyak',
     'event.no_results': 'Tidak ada event yang ditemukan.',
+    'event.clear_filters': 'Bersihkan Filter',
 
     // Events
     'event.wfc.desc': 'Kerja bareng santai, ngopi, dan diskusi ringan sesama member.',
     'event.meetup.desc': 'Sharing session santai membahas tren teknologi 2025.',
     'event.workshop.desc': 'Belajar dasar-dasar desain antarmuka yang ramah pengguna.',
     'event.hackathon.desc': 'Kompetisi coding 24 jam membangun solusi untuk kota Blitar.',
-
+    'event.webinar.desc': 'Pembelajaran mendalam tentang teknologi terbaru dan praktik terbaik.',
+    
     'gallery.title': 'Dokumentasi Seru',
     'gallery.desc': 'Momen kebersamaan dan kolaborasi di Patria Dev.',
     'gallery.view': 'Lihat Foto',
@@ -162,6 +164,7 @@ export const ui = {
     'event.filter.wfc': 'WFC',
     'event.load_more': 'Load More',
     'event.no_results': 'No events found.',
+    'event.clear_filters': 'Clear Filters',
 
     // Events
     'event.wfc.desc': 'Casual co-working, coffee, and light discussions with members.',

@@ -1,11 +1,12 @@
 ---
 import Section from '../ui/Section.astro';
-import { missionItems } from '../../data/home';
-import { Image } from 'astro:assets';
-import { getLangFromRequest, useTranslations } from '../../i18n/utils';
+import { getMissions } from '../../utils/sanity';
+import { getLangFromUrl, useTranslations } from '../../i18n/utils';
 
-const lang = getLangFromRequest(Astro);
+const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
+
+const missionItems = await getMissions(lang);
 ---
 
 <Section id="mission" bg="surface" class="py-24 relative">
@@ -23,14 +24,14 @@ const t = useTranslations(lang);
         
         <div class="relative z-10">
           <div class={`w-14 h-14 rounded-2xl bg-white/80 backdrop-blur mb-6 flex items-center justify-center shadow-sm`}>
-            <Image src={item.icon} alt={item.title} class="w-8 h-8" />
+            {item.icon?.asset?.url && <img src={item.icon.asset.url} alt={item.title} class="w-8 h-8" />}
           </div>
           
           <h3 class="text-xl font-bold mb-3 font-headings">
-            {t(item.title as any)}
+            {item.title}
           </h3>
           <p class="opacity-90 leading-relaxed">
-            {t(item.desc as any)}
+            {item.desc}
           </p>
         </div>
       </div>

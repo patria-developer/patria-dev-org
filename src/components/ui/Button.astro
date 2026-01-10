@@ -3,7 +3,7 @@ import type { HTMLAttributes } from 'astro/types';
 
 interface Props extends HTMLAttributes<'button'>, HTMLAttributes<'a'> {
   href?: string;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'link';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   block?: boolean;
@@ -29,7 +29,8 @@ const variants = {
   secondary: "bg-secondary-trust text-white shadow-lg hover:shadow-xl hover:bg-opacity-90 hover:-translate-y-1 focus:ring-secondary-trust border border-transparent",
   outline: "bg-white text-secondary-trust border border-gray-200 hover:bg-gray-50 hover:border-gray-300 focus:ring-gray-200",
   ghost: "bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent shadow-none",
-  danger: "bg-red-600 text-white shadow-lg shadow-red-600/30 hover:bg-red-700 hover:-translate-y-1 focus:ring-red-600 border border-transparent"
+  danger: "bg-red-600 text-white shadow-lg shadow-red-600/30 hover:bg-red-700 hover:-translate-y-1 focus:ring-red-600 border border-transparent",
+  link: "bg-transparent text-primary hover:bg-gray-100 hover:text-primary border border-transparent shadow-none"
 };
 
 const sizes = {

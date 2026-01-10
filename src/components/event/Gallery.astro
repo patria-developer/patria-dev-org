@@ -1,10 +1,13 @@
 ---
-import { galleryImages } from '../../data/gallery';
+import { getGallery } from '../../utils/sanity';
 import Section from '../ui/Section.astro';
-import { getLangFromRequest, useTranslations } from '../../i18n/utils';
+import { getLangFromUrl, useTranslations } from '../../i18n/utils';
 
-const lang = getLangFromRequest(Astro);
+const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
+
+const galleryData = await getGallery();
+const galleryImages = galleryData?.images.map(img => img.asset.url) || [];
 ---
 
 <Section id="gallery" bg="surface" class="py-20 overflow-hidden">

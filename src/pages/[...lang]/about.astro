@@ -1,49 +1,43 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import TeamList from '../../components/about/TeamList.astro';
-import { getTitle } from '../../utils/title-manager';
-import { getLangFromRequest, useTranslations } from '../../i18n/utils';
-import PageHeader from '../../components/ui/PageHeader.astro';
+import TeamList from '../../components/about/TeamList.astro'
+import PageHeader from '../../components/ui/PageHeader.astro'
+import { getLangFromUrl, useTranslations } from '../../i18n/utils'
+import Layout from '../../layouts/Layout.astro'
+import { getPageTitle } from '../../utils/sanity'
 
 export async function getStaticPaths() {
-  return [
-    { params: { lang: undefined } },
-    { params: { lang: 'en' } },
-  ];
+  return [{ params: { lang: undefined } }, { params: { lang: 'en' } }]
 }
 
-const lang = getLangFromRequest(Astro as any);
-const t = useTranslations(lang);
-const pageTitle = getTitle('about');
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
+const pageTitle = await getPageTitle('about', lang)
 ---
 
-<Layout title={pageTitle}>
-  <PageHeader 
-    title={t('team.title')} 
-    description={t('team.desc')} 
-  />
+<Layout title={pageTitle?.title?.[lang] || 'Patria Dev ID'}>
+  <PageHeader title={t('team.title')} description={t('team.desc')} />
   <TeamList />
 </Layout>
 
 <script>
-  import { gsap } from "gsap";
-  import { ScrollTrigger } from "gsap/ScrollTrigger";
-  
-  gsap.registerPlugin(ScrollTrigger);
+  import { gsap } from 'gsap'
+  import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+  gsap.registerPlugin(ScrollTrigger)
 
   // Team Cards
-  const teamCards = gsap.utils.toArray(".team-card");
+  const teamCards = gsap.utils.toArray('.team-card')
   teamCards.forEach((card) => {
     gsap.from(card as Element, {
       scrollTrigger: {
         trigger: card as Element,
-        start: "top bottom-=100",
-        toggleActions: "play none none reverse"
+        start: 'top bottom-=100',
+        toggleActions: 'play none none reverse',
       },
       y: 50,
       opacity: 0,
       duration: 0.8,
-      ease: "back.out(1.2)"
-    });
-  });
+      ease: 'back.out(1.2)',
+    })
+  })
 </script>

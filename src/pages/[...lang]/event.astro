@@ -1,29 +1,24 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import EventManager from '../../components/event/EventManager.astro';
-import Gallery from '../../components/event/Gallery.astro';
-import Lightbox from '../../components/event/Lightbox.astro';
-import { getTitle } from '../../utils/title-manager';
-import { getLangFromRequest, useTranslations } from '../../i18n/utils';
-import PageHeader from '../../components/ui/PageHeader.astro';
+import EventManager from '../../components/event/EventManager.astro'
+import Gallery from '../../components/event/Gallery.astro'
+import Lightbox from '../../components/event/Lightbox.astro'
+import PageHeader from '../../components/ui/PageHeader.astro'
+import { getLangFromUrl, useTranslations } from '../../i18n/utils'
+import Layout from '../../layouts/Layout.astro'
+import { getPageTitle } from '../../utils/sanity'
 
 export async function getStaticPaths() {
-  return [
-    { params: { lang: undefined } },
-    { params: { lang: 'en' } },
-  ];
+  return [{ params: { lang: undefined } }, { params: { lang: 'en' } }]
 }
 
-const lang = getLangFromRequest(Astro as any);
-const t = useTranslations(lang);
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
+const pageTitle = await getPageTitle('event', lang)
 ---
 
-<Layout title={getTitle('event')}>
+<Layout title={pageTitle?.title?.[lang] || 'Patria Dev ID'}>
   <!-- Header -->
-  <PageHeader 
-    title={t('event.title')} 
-    description={t('event.desc')} 
-  />
+  <PageHeader title={t('event.title')} description={t('event.desc')} />
 
   <EventManager />
   <Gallery />
@@ -31,40 +26,41 @@ const t = useTranslations(lang);
 </Layout>
 
 <script>
-  import { gsap } from "gsap";
-  import { ScrollTrigger } from "gsap/ScrollTrigger";
-  
-  gsap.registerPlugin(ScrollTrigger);
+  import { gsap } from 'gsap'
+  import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+  gsap.registerPlugin(ScrollTrigger)
 
   // Event Cards - Use individual triggers for smoother scroll experience
-  const cards = gsap.utils.toArray(".event-card");
+  const cards = gsap.utils.toArray('.event-card')
   cards.forEach((card) => {
     gsap.from(card as Element, {
       scrollTrigger: {
         trigger: card as Element,
-        start: "top bottom-=100",
-        toggleActions: "play none none reverse"
+        start: 'top bottom-=100',
+        toggleActions: 'play none none reverse',
       },
       y: 50,
       opacity: 0,
       duration: 0.8,
-      ease: "power3.out"
-    });
-  });
+      ease: 'power3.out',
+      clearProps: 'all',
+    })
+  })
 
   // Gallery Animation
-  const galleryItems = gsap.utils.toArray(".gallery-item");
+  const galleryItems = gsap.utils.toArray('.gallery-item')
   galleryItems.forEach((item) => {
     gsap.from(item as Element, {
       scrollTrigger: {
         trigger: item as Element,
-        start: "top bottom-=100",
-        toggleActions: "play none none reverse"
+        start: 'top bottom-=100',
+        toggleActions: 'play none none reverse',
       },
       scale: 0.8,
       opacity: 0,
       duration: 0.8,
-      ease: "back.out(1.2)"
-    });
-  });
+      ease: 'back.out(1.2)',
+    })
+  })
 </script>

@@ -1,215 +1,200 @@
 ---
-import { events, pastEvents } from '../../data/events';
-import Section from '../ui/Section.astro';
-import { getLangFromRequest, useTranslations } from '../../i18n/utils';
-import { Image } from 'astro:assets';
-import Button from '../ui/Button.astro';
+import { getLangFromUrl, useTranslations } from '../../i18n/utils'
+import { getPastEvents, getUpcomingEvents } from '../../utils/sanity'
+import Button from '../ui/Button.astro'
+import Section from '../ui/Section.astro'
+import EventCard from './EventCard.astro'
 
-const lang = getLangFromRequest(Astro);
-const t = useTranslations(lang);
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
 
-// Merge all events for client-side filtering, but mark them
-const allEvents = [
-  ...events.map(e => ({ ...e, isPast: false })),
-  ...pastEvents.map(e => ({ ...e, isPast: true }))
-];
+const [upcomingEvents, pastEvents] = await Promise.all([
+  getUpcomingEvents(lang),
+  getPastEvents(lang),
+])
 
-const eventTypes = ['Meetup', 'Workshop', 'WFC', 'Hackathon', 'Webinar'];
+// Show only 5 events initially for each section
+const INITIAL_EVENTS_COUNT = 5
+const initialUpcomingEvents = upcomingEvents.slice(0, INITIAL_EVENTS_COUNT)
+const initialPastEvents = pastEvents.slice(0, INITIAL_EVENTS_COUNT)
 ---
 
-<Section id="event-manager" bg="background" class="py-16">
-  <div class="max-w-6xl mx-auto space-y-8">
-    
-    <!-- Controls Section -->
-    <div class="flex flex-col md:flex-row gap-6 justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-      <!-- Tabs -->
-      <div class="flex p-1 bg-gray-100 rounded-xl" id="event-tabs">
-        <button 
-          class="px-6 py-2 rounded-lg text-sm font-bold transition-all shadow-sm bg-white text-primary" 
-          data-tab="upcoming"
-        >
-          {t('event.tabs.upcoming')}
-        </button>
-        <button 
-          class="px-6 py-2 rounded-lg text-sm font-bold text-gray-500 hover:text-gray-700 transition-all" 
-          data-tab="past"
-        >
-          {t('event.tabs.past')}
-        </button>
-      </div>
-
-      <!-- Filters -->
-      <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-        <div class="relative">
-          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input 
-            type="text" 
-            id="event-search" 
-            placeholder={t('event.search.placeholder')} 
-            class="pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 w-full sm:w-64"
-          />
-        </div>
-        
-        <select id="event-filter" class="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-gray-600">
-          <option value="all">{t('event.filter.all')}</option>
-          {eventTypes.map(type => (
-            <option value={type}>{type}</option>
-          ))}
-        </select>
-      </div>
-    </div>
-
-    <!-- Events Grid -->
-    <div id="events-grid" class="space-y-6">
-      {allEvents.map((event) => (
-        <div 
-          class="event-card group bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 flex flex-col md:flex-row gap-6 items-start md:items-center"
-          data-type={event.type}
-          data-status={event.isPast ? 'past' : 'upcoming'}
-          data-title={event.title.toLowerCase()}
-          data-date={event.isoDate}
-        >
-          <div class="md:w-1/4 flex flex-col items-center md:items-start text-center md:text-left">
-            <div class="text-primary font-bold text-xl mb-1">{event.date}</div>
-            <div class="text-gray-500 text-sm mb-3">{event.time}</div>
-            {event.image && (
-              <div class="w-full h-32 md:h-24 rounded-lg overflow-hidden mt-2 relative">
-                <img 
-                  src={event.image} 
-                  alt={event.title}
-                  class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                  loading="lazy"
-                />
-                {event.isPast && <div class="absolute inset-0 bg-gray-900/10"></div>}
+<Section id='event-manager' bg='background' class='py-16'>
+  <div class='max-w-6xl mx-auto space-y-12'>
+    <!-- Upcoming Events Section -->
+    <div class='space-y-6'>
+      <h2 class='text-4xl font-headings font-bold text-primary text-center'>
+        {t('event.tabs.upcoming')}
+      </h2>
+      <div id='upcoming-events' class='space-y-4'>
+        {
+          initialUpcomingEvents.length > 0 ? (
+            initialUpcomingEvents.map((event) => (
+              <EventCard lang={lang} event={event} />
+            ))
+          ) : (
+            <div class='text-center py-12'>
+              <div class='w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4'>
+                <svg
+                  class='w-8 h-8 text-gray-400'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                >
+                  <path
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    stroke-width='2'
+                    d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
+                  />
+                </svg>
               </div>
-            )}
-          </div>
-          
-          <div class="flex-1">
-            <div class="flex items-center gap-3 mb-2">
-              <span class={`text-xs font-bold px-3 py-1 rounded-full ${
-                event.isPast 
-                  ? 'bg-gray-100 text-gray-500' 
-                  : event.type === 'Meetup' ? 'bg-green-100 text-green-600' 
-                  : event.type === 'Workshop' ? 'bg-blue-100 text-blue-600' 
-                  : event.type === 'WFC' ? 'bg-orange-100 text-orange-600' 
-                  : 'bg-purple-100 text-purple-600'
-              }`}>
-                {event.type}
-              </span>
-              <span class="text-xs text-gray-500 flex items-center gap-1">
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                {event.location}
-              </span>
+              <p class='text-gray-500 font-medium'>{t('event.no_results')}</p>
             </div>
-            <h3 class={`text-xl font-bold mb-2 ${event.isPast ? 'text-gray-600' : 'text-secondary-trust'}`}>{event.title}</h3>
-            <p class="text-gray-600 text-sm">{(event.desc && event.desc.includes('.')) ? t(event.desc as any) : event.desc}</p>
-          </div>
-          
-          <div class="w-full md:w-auto mt-4 md:mt-0">
-            {event.isPast ? (
-               <span class="inline-flex items-center px-4 py-2 rounded-full border border-gray-200 text-gray-400 font-medium text-sm">
-                 {t('event.completed')}
-               </span>
-            ) : (
-              <Button 
-                size="sm"
-                disabled={event.status !== 'Open'}
-                class="w-full md:w-auto"
-              >
-                {event.status === 'Open' ? t('event.register') : t('event.soon')}
-              </Button>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-
-    <!-- No Results State -->
-    <div id="no-results" class="hidden text-center py-12">
-      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
+          )
+        }
       </div>
-      <p class="text-gray-500 font-medium">{t('event.no_results')}</p>
+      {
+        upcomingEvents.length > INITIAL_EVENTS_COUNT && (
+          <div class='text-center pt-4'>
+            <Button
+              variant='outline'
+              id='load-more-upcoming'
+              data-offset={INITIAL_EVENTS_COUNT}
+              data-total={upcomingEvents.length}
+            >
+              {t('event.load_more')}
+            </Button>
+          </div>
+        )
+      }
     </div>
 
-    <!-- Pagination / Load More (Mock) -->
-    <div class="text-center pt-8 hidden" id="load-more-container">
-      <Button variant="outline">
-        {t('event.load_more')}
-      </Button>
+    <!-- Past Events Section -->
+    <div class='space-y-6 pt-12'>
+      <h2
+        class='text-4xl font-headings font-bold text-secondary-trust text-center'
+      >
+        {t('event.tabs.past')}
+      </h2>
+      <div id='past-events' class='space-y-4'>
+        {
+          initialPastEvents.length > 0 ? (
+            initialPastEvents.map((event) => (
+              <EventCard lang={lang} event={event} />
+            ))
+          ) : (
+            <div class='text-center py-12'>
+              <div class='w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4'>
+                <svg
+                  class='w-8 h-8 text-gray-400'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                >
+                  <path
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    stroke-width='2'
+                    d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
+                  />
+                </svg>
+              </div>
+              <p class='text-gray-500 font-medium'>{t('event.no_results')}</p>
+            </div>
+          )
+        }
+      </div>
+      {
+        pastEvents.length > INITIAL_EVENTS_COUNT && (
+          <div class='text-center pt-4'>
+            <Button
+              variant='outline'
+              id='load-more-past'
+              data-offset={INITIAL_EVENTS_COUNT}
+              data-total={pastEvents.length}
+            >
+              {t('event.load_more')}
+            </Button>
+          </div>
+        )
+      }
     </div>
   </div>
 </Section>
 
 <script>
-  // Client-side filtering logic
-  const tabs = document.querySelectorAll('[data-tab]');
-  const searchInput = document.getElementById('event-search') as HTMLInputElement;
-  const typeFilter = document.getElementById('event-filter') as HTMLSelectElement;
-  const eventsGrid = document.getElementById('events-grid');
-  const cards = document.querySelectorAll('.event-card');
-  const noResults = document.getElementById('no-results');
+  // Load more functionality for upcoming and past events
+  const loadMoreUpcoming = document.getElementById(
+    'load-more-upcoming'
+  ) as HTMLButtonElement
+  const loadMorePast = document.getElementById(
+    'load-more-past'
+  ) as HTMLButtonElement
+  const upcomingEventsContainer = document.getElementById('upcoming-events')
+  const pastEventsContainer = document.getElementById('past-events')
 
-  let currentTab = 'upcoming';
+  const EVENTS_PER_LOAD = 5
 
-  function filterEvents() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const selectedType = typeFilter.value;
-    let visibleCount = 0;
+  async function loadMoreEvents(type: 'upcoming' | 'past', offset: number) {
+    const button = type === 'upcoming' ? loadMoreUpcoming : loadMorePast
+    const container =
+      type === 'upcoming' ? upcomingEventsContainer : pastEventsContainer
 
-    cards.forEach(card => {
-      const el = card as HTMLElement;
-      const status = el.dataset.status;
-      const type = el.dataset.type;
-      const title = el.dataset.title || '';
-      
-      const matchesTab = status === currentTab;
-      const matchesSearch = title.includes(searchTerm);
-      const matchesType = selectedType === 'all' || type === selectedType;
+    if (!button || !container) return
 
-      if (matchesTab && matchesSearch && matchesType) {
-        el.style.display = 'flex';
-        // Add animation class if needed
-        el.style.opacity = '1';
-        el.style.transform = 'translateY(0)';
-        visibleCount++;
+    // Show loading state
+    button.disabled = true
+    button.textContent = 'Loading...'
+
+    try {
+      const params = new URLSearchParams()
+      const currentLang = window.location.pathname.startsWith('/en')
+        ? 'en'
+        : 'id'
+      params.append('category', type)
+      params.append('offset', offset.toString())
+      params.append('limit', EVENTS_PER_LOAD.toString())
+      params.append('lang', currentLang)
+
+      const response = await fetch(
+        `/partials/event-cards-more?${params.toString()}`
+      )
+      if (!response.ok) throw new Error('Network response was not ok')
+      const html = await response.text()
+
+      // Append new events
+      container.insertAdjacentHTML('beforeend', html)
+
+      // Update button state
+      const newOffset = offset + EVENTS_PER_LOAD
+      const total = parseInt(button.dataset.total || '0')
+
+      if (newOffset >= total) {
+        // Hide button if no more events
+        button.style.display = 'none'
       } else {
-        el.style.display = 'none';
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(10px)';
+        // Update button data and re-enable
+        button.dataset.offset = newOffset.toString()
+        button.disabled = false
+        button.textContent = 'Load More'
       }
-    });
-
-    if (noResults) {
-      noResults.classList.toggle('hidden', visibleCount > 0);
+    } catch (error) {
+      console.error('Error loading more events:', error)
+      button.disabled = false
+      button.textContent = 'Load More'
     }
   }
 
-  // Event Listeners
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      // Update UI
-      tabs.forEach(t => {
-        t.classList.remove('bg-white', 'text-primary', 'shadow-sm');
-        t.classList.add('text-gray-500');
-      });
-      tab.classList.add('bg-white', 'text-primary', 'shadow-sm');
-      tab.classList.remove('text-gray-500');
+  // Load more upcoming events
+  loadMoreUpcoming?.addEventListener('click', () => {
+    const offset = parseInt(loadMoreUpcoming.dataset.offset || '0')
+    loadMoreEvents('upcoming', offset)
+  })
 
-      // Update State
-      currentTab = (tab as HTMLElement).dataset.tab || 'upcoming';
-      filterEvents();
-    });
-  });
-
-  searchInput?.addEventListener('input', filterEvents);
-  typeFilter?.addEventListener('change', filterEvents);
-
-  // Initial Filter
-  filterEvents();
+  // Load more past events
+  loadMorePast?.addEventListener('click', () => {
+    const offset = parseInt(loadMorePast.dataset.offset || '0')
+    loadMoreEvents('past', offset)
+  })
 </script>

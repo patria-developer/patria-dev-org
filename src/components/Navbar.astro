@@ -1,192 +1,235 @@
 ---
-import { navLinks } from '../data/site';
-import { getLangFromRequest, useTranslations } from '../i18n/utils';
-import LanguageToggle from './ui/LanguageToggle.astro';
-import Button from './ui/Button.astro';
-import { Image } from 'astro:assets';
-import logoPatria from '../assets/logo-patria-dev.png';
+import { getSiteSettings } from '../utils/sanity'
+import { navLinks as staticNavLinks } from '../data/site'
+import { getLangFromUrl, useTranslations } from '../i18n/utils'
+import LanguageToggle from './ui/LanguageToggle.astro'
+import Button from './ui/Button.astro'
+import { Image } from 'astro:assets'
+import logoPatria from '../assets/logo-patria-dev.png'
 
-const lang = getLangFromRequest(Astro);
-const t = useTranslations(lang);
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
 
-const pathname = Astro.url.pathname;
-const normalizedPathName = pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+const settings = await getSiteSettings(lang)
+const navLinks = settings?.navLinks || staticNavLinks
+
+const pathname = Astro.url.pathname
+const normalizedPathName =
+  pathname.length > 1 && pathname.endsWith('/')
+    ? pathname.slice(0, -1)
+    : pathname
 ---
 
-<header class="fixed w-full top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-gray-100 transition-all duration-300" id="navbar">
-  <div class="container mx-auto px-4 h-16 flex items-center justify-between">
-    <a href="/" class="text-2xl font-headings font-bold text-primary tracking-tight flex items-center gap-2">
-      <Image src={logoPatria} alt="PatriaDev" class="w-8 h-8" />
-      <span class="text-secondary-trust">Patria Dev</span>
+<header
+  class='fixed w-full top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-gray-100 transition-all duration-300'
+  id='navbar'
+>
+  <div class='container mx-auto px-4 h-16 flex items-center justify-between'>
+    <a
+      href='/'
+      class='text-2xl font-headings font-bold text-primary tracking-tight flex items-center gap-2'
+    >
+      <Image src={logoPatria} alt='PatriaDev' class='w-8 h-8' />
+      <span class='text-secondary-trust'>Patria Dev</span>
     </a>
-    
-    <nav class="hidden md:flex gap-8 items-center">
-      {navLinks.map(link => {
-        // Handle language prefix
-        const href = lang === 'en' && link.href !== '/' 
-          ? `/en${link.href}` 
-          : lang === 'en' && link.href === '/'
-            ? '/en'
-            : link.href;
 
-        const isActive = href === '/' 
-          ? normalizedPathName === '/' 
-          : normalizedPathName.startsWith(href);
-        
-        return (
-          // @ts-ignore
-          <a href={href} class={`font-medium transition-colors relative group ${isActive ? "text-primary" : "text-text-main hover:text-primary"}`}>
-            {t(link.label as any)}
-            <span class={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${isActive ? "w-full" : "w-0 group-hover:w-full"}`}></span>
-          </a>
-        );
-      })}
-      
+    <nav class='hidden md:flex gap-4 lg:gap-8 items-center'>
+      {
+        navLinks.map((link) => {
+          // Handle language prefix
+          const href =
+            lang === 'en'
+              ? `/en${link.href === '/' ? '' : link.href}`
+              : link.href
+
+          const isActive = href === normalizedPathName
+
+          return (
+            <a
+              href={href}
+              class={`font-medium transition-colors relative group ${isActive ? 'text-primary' : 'text-text-main hover:text-primary'}`}
+            >
+              {t(link.label as any)}
+              <span
+                class={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`}
+              />
+            </a>
+          )
+        })
+      }
+
       <LanguageToggle />
     </nav>
 
-    <div class="flex items-center gap-4">
-      <div class="hidden md:block">
-        <Button href="/contact" size="sm">
+    <div class='flex items-center gap-4'>
+      <div class='hidden md:block'>
+        <Button href='/contact' size='sm'>
           {t('nav.join')}
         </Button>
       </div>
-      
+
       <!-- Mobile Menu Button -->
-      <Button 
-        id="mobile-menu-btn"
-        variant="ghost"
-        class="md:hidden !p-2 text-secondary-trust"
+      <Button
+        id='mobile-menu-btn'
+        variant='ghost'
+        class='md:hidden p-2! text-secondary-trust'
         aria-label={t('nav.menu_open')}
-        aria-expanded="false"
-        aria-controls="mobile-menu"
+        aria-expanded='false'
+        aria-controls='mobile-menu'
       >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-          </svg>
+        <svg
+          xmlns='http://www.w3.org/2000/svg'
+          fill='none'
+          viewBox='0 0 24 24'
+          stroke-width='1.5'
+          stroke='currentColor'
+          class='w-6 h-6'
+        >
+          <path
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            d='M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5'></path>
+        </svg>
       </Button>
     </div>
   </div>
 </header>
 
-  <!-- Off-canvas Mobile Menu -->
-  <div 
-    id="mobile-menu-overlay" 
-    class="fixed inset-0 bg-black/50 z-[60] opacity-0 pointer-events-none transition-opacity duration-300 md:hidden backdrop-blur-sm"
-    aria-hidden="true"
-  ></div>
+<!-- Off-canvas Mobile Menu -->
+<div
+  id='mobile-menu-overlay'
+  class='fixed inset-0 bg-black/50 z-60 opacity-0 pointer-events-none transition-opacity duration-300 md:hidden backdrop-blur-sm'
+  aria-hidden='true'
+>
+</div>
 
-  <aside 
-    id="mobile-menu" 
-    class="fixed top-0 right-0 z-[70] w-full h-full bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out md:hidden flex flex-col"
-    aria-label="Mobile Navigation"
-  >
-    <div class="p-4 flex items-center justify-between border-b border-gray-100">
-      <a href="/" class="flex items-center gap-2">
-        <Image src={logoPatria} alt="PatriaDev" class="w-8 h-8" />
-        <span class="text-xl font-headings font-bold text-secondary-trust">Patria Dev</span>
-      </a>
-      <Button
-        id="mobile-menu-close"
-        variant="ghost"
-        class="!p-2 text-gray-500 hover:text-red-500 hover:bg-red-50"
-        aria-label={t('nav.menu_close')}
+<aside
+  id='mobile-menu'
+  class='fixed top-0 right-0 z-70 w-full h-full bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out md:hidden flex flex-col'
+  aria-label='Mobile Navigation'
+>
+  <div class='p-4 flex items-center justify-between border-b border-gray-100'>
+    <a href='/' class='flex items-center gap-2'>
+      <Image src={logoPatria} alt='PatriaDev' class='w-8 h-8' />
+      <span class='text-xl font-headings font-bold text-secondary-trust'
+        >Patria Dev</span
       >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </Button>
-    </div>
+    </a>
+    <Button
+      id='mobile-menu-close'
+      variant='ghost'
+      class='!p-2 text-gray-500 hover:text-red-500 hover:bg-red-50'
+      aria-label={t('nav.menu_close')}
+    >
+      <svg
+        xmlns='http://www.w3.org/2000/svg'
+        fill='none'
+        viewBox='0 0 24 24'
+        stroke-width='2'
+        stroke='currentColor'
+        class='w-6 h-6'
+      >
+        <path
+          stroke-linecap='round'
+          stroke-linejoin='round'
+          d='M6 18L18 6M6 6l12 12'></path>
+      </svg>
+    </Button>
+  </div>
 
-    <div class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-6">
-      <nav class="flex flex-col gap-4">
-        {navLinks.map(link => {
+  <div class='flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-6'>
+    <nav class='flex flex-col gap-4'>
+      {
+        navLinks.map((link) => {
           // Handle language prefix
-          const href = lang === 'en' && link.href !== '/' 
-            ? `/en${link.href}` 
-            : lang === 'en' && link.href === '/'
-              ? '/en'
-              : link.href;
+          const href =
+            lang === 'en' && link.href !== '/'
+              ? `/en${link.href}`
+              : lang === 'en' && link.href === '/'
+                ? '/en'
+                : link.href
 
-          const isActive = href === '/' 
-            ? normalizedPathName === '/' 
-            : normalizedPathName.startsWith(href);
-          
+          const isActive =
+            href === '/'
+              ? normalizedPathName === '/'
+              : normalizedPathName.startsWith(href)
+
           return (
             // @ts-ignore
-            <Button 
-              href={href} 
-              variant="ghost"
+            <Button
+              href={href}
+              variant='ghost'
               class={`w-full justify-start text-lg font-medium px-4 py-3 rounded-xl transition-all ${
-                isActive 
-                  ? "bg-primary/10 text-primary font-bold" 
-                  : "text-gray-600 hover:bg-gray-50 hover:text-primary"
+                isActive
+                  ? 'bg-primary/10 text-primary font-bold'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-primary'
               }`}
             >
               {t(link.label as any)}
             </Button>
-          );
-        })}
-      </nav>
+          )
+        })
+      }
+    </nav>
 
-      <div class="mt-auto border-t border-gray-100 pt-6 space-y-6">
-        <div class="flex items-center justify-between px-2">
-          <span class="text-sm font-medium text-gray-500">Language</span>
-          <LanguageToggle />
-        </div>
-        
-        <Button href="/contact" block size="lg">
-          {t('nav.join')}
-        </Button>
+    <div class='mt-auto border-t border-gray-100 pt-6 space-y-6'>
+      <div class='flex items-center justify-between px-2'>
+        <span class='text-sm font-medium text-gray-500'>Language</span>
+        <LanguageToggle />
       </div>
+
+      <Button href='/contact' block size='lg'>
+        {t('nav.join')}
+      </Button>
     </div>
-  </aside>
+  </div>
+</aside>
 
 <script>
-  const menuBtn = document.getElementById('mobile-menu-btn');
-  const closeBtn = document.getElementById('mobile-menu-close');
-  const menu = document.getElementById('mobile-menu');
-  const overlay = document.getElementById('mobile-menu-overlay');
-  const body = document.body;
+  const menuBtn = document.getElementById('mobile-menu-btn')
+  const closeBtn = document.getElementById('mobile-menu-close')
+  const menu = document.getElementById('mobile-menu')
+  const overlay = document.getElementById('mobile-menu-overlay')
+  const body = document.body
 
-  let isMenuOpen = false;
+  let isMenuOpen = false
 
   function toggleMenu() {
-    isMenuOpen = !isMenuOpen;
-    
+    isMenuOpen = !isMenuOpen
+
     if (isMenuOpen) {
       // Open
-      menu?.classList.remove('translate-x-full');
-      overlay?.classList.remove('opacity-0', 'pointer-events-none');
-      menuBtn?.setAttribute('aria-expanded', 'true');
-      body.style.overflow = 'hidden'; // Prevent scrolling
-      closeBtn?.focus(); // Move focus to close button
+      menu?.classList.remove('translate-x-full')
+      overlay?.classList.remove('opacity-0', 'pointer-events-none')
+      menuBtn?.setAttribute('aria-expanded', 'true')
+      body.style.overflow = 'hidden' // Prevent scrolling
+      closeBtn?.focus() // Move focus to close button
     } else {
       // Close
-      menu?.classList.add('translate-x-full');
-      overlay?.classList.add('opacity-0', 'pointer-events-none');
-      menuBtn?.setAttribute('aria-expanded', 'false');
-      body.style.overflow = '';
-      menuBtn?.focus(); // Return focus to trigger
+      menu?.classList.add('translate-x-full')
+      overlay?.classList.add('opacity-0', 'pointer-events-none')
+      menuBtn?.setAttribute('aria-expanded', 'false')
+      body.style.overflow = ''
+      menuBtn?.focus() // Return focus to trigger
     }
   }
 
-  menuBtn?.addEventListener('click', toggleMenu);
-  closeBtn?.addEventListener('click', toggleMenu);
-  overlay?.addEventListener('click', toggleMenu);
+  menuBtn?.addEventListener('click', toggleMenu)
+  closeBtn?.addEventListener('click', toggleMenu)
+  overlay?.addEventListener('click', toggleMenu)
 
   // Close on Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && isMenuOpen) {
-      toggleMenu();
+      toggleMenu()
     }
-  });
+  })
 
   // Handle link clicks (close menu)
-  const mobileLinks = menu?.querySelectorAll('a');
-  mobileLinks?.forEach(link => {
+  const mobileLinks = menu?.querySelectorAll('a')
+  mobileLinks?.forEach((link) => {
     link.addEventListener('click', () => {
-      if (isMenuOpen) toggleMenu();
-    });
-  });
+      if (isMenuOpen) toggleMenu()
+    })
+  })
 </script>

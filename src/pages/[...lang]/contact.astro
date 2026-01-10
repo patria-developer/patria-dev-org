@@ -1,9 +1,9 @@
 ---
-import Layout from '../../layouts/Layout.astro';
 import ContactForm from '../../components/about/ContactForm.astro';
-import { getTitle } from '../../utils/title-manager';
-import { getLangFromRequest, useTranslations } from '../../i18n/utils';
 import PageHeader from '../../components/ui/PageHeader.astro';
+import { getLangFromUrl, useTranslations } from '../../i18n/utils';
+import Layout from '../../layouts/Layout.astro';
+import { getPageTitle } from '../../utils/sanity';
 
 export async function getStaticPaths() {
   return [
@@ -12,12 +12,12 @@ export async function getStaticPaths() {
   ];
 }
 
-const lang = getLangFromRequest(Astro as any);
+const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
-const pageTitle = getTitle('contact');
+const pageTitle = await getPageTitle('contact', lang);
 ---
 
-<Layout title={pageTitle}>
+<Layout title={pageTitle?.title?.[lang] || 'Patria Dev ID'}>
   <PageHeader 
     title={t('contact.title')} 
     description={t('contact.desc')} 

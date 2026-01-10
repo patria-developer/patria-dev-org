@@ -1,57 +1,105 @@
 ---
-import { navLinks, siteConfig, socialLinks } from '../data/site';
-import { Image } from 'astro:assets';
-import { getLangFromRequest, useTranslations } from '../i18n/utils';
+import { getSiteSettings } from '../utils/sanity'
+import {
+  navLinks as staticNavLinks,
+  siteConfig as staticSiteConfig,
+  socialLinks as staticSocialLinks,
+} from '../data/site'
+import { getLangFromUrl, useTranslations } from '../i18n/utils'
 
-const lang = getLangFromRequest(Astro);
-const t = useTranslations(lang);
+const lang = getLangFromUrl(Astro.url)
+const t = useTranslations(lang)
+
+const settings = await getSiteSettings(lang)
+
+// Fallback to static data if Sanity data is missing
+const siteConfig = settings
+  ? {
+      title: settings.title,
+      email: settings.email,
+      address: settings.address,
+    }
+  : staticSiteConfig
+
+const navLinks = settings?.navLinks || staticNavLinks
+
+// Map Sanity social links to match structure or use static
+const socialLinks =
+  settings?.socialLinks.map((link) => ({
+    platform: link.platform,
+    href: link.href,
+    icon: link.icon?.asset?.url || '', // Use URL string with optional chaining
+  })) ||
+  staticSocialLinks.map((link) => ({
+    ...link,
+    icon: (link.icon as any).src || link.icon,
+  })) // Handle static import
 ---
 
-<footer class="bg-secondary-trust text-white py-12 border-t border-gray-800">
-  <div class="container mx-auto px-4">
-    <div class="grid md:grid-cols-4 gap-8 mb-8">
-      <div class="col-span-1 md:col-span-1">
-        <h3 class="text-2xl font-headings font-bold text-white mb-4">Patria Dev</h3>
-        <p class="text-gray-400">{t('footer.desc')}</p>
+<footer class='bg-secondary-trust text-white py-12 border-t border-gray-800'>
+  <div class='container mx-auto px-4'>
+    <div class='grid md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-8 lg:mb-8'>
+      <div class='col-span-1 md:col-span-1'>
+        <h3 class='text-2xl font-headings font-bold text-white mb-4'>
+          Patria Dev
+        </h3>
+        <p class='text-gray-400'>{t('footer.desc')}</p>
       </div>
       <div>
-        <h4 class="font-bold mb-4">{t('footer.nav')}</h4>
-        <ul class="space-y-2 text-gray-400">
-          {navLinks.map(link => (
-            // @ts-ignore
-            <li><a href={link.href} class="hover:text-primary transition-colors">{t(link.label as any)}</a></li>
-          ))}
+        <h4 class='font-bold mb-4'>{t('footer.nav')}</h4>
+        <ul class='space-y-2 text-gray-400'>
+          {
+            navLinks.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class='hover:text-primary transition-colors'
+                >
+                  {t(link.label as any)}
+                </a>
+              </li>
+            ))
+          }
         </ul>
       </div>
       <div>
-        <h4 class="font-bold mb-4">{t('footer.contact')}</h4>
-        <p class="text-gray-400 mb-2">{siteConfig.email}</p>
-        {siteConfig.address && <p class="text-gray-400 text-sm">{siteConfig.address}</p>}
+        <h4 class='font-bold mb-4'>{t('footer.contact')}</h4>
+        <p class='text-gray-400 mb-2 text-wrap'>{siteConfig.email}</p>
+        {
+          siteConfig.address && (
+            <p class='text-gray-400 text-sm'>{siteConfig.address}</p>
+          )
+        }
       </div>
       <div>
-        <h4 class="font-bold mb-4">{t('footer.follow')}</h4>
-        <div class="flex gap-4">
-          {socialLinks.map(social => (
-            <a 
-              href={social.href} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              class="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center hover:bg-primary/70 transition-all duration-300 group"
-              aria-label={social.platform}
-              title={social.platform}
-            >
-              <Image 
-                src={social.icon} 
-                alt={social.platform} 
-                class="w-5 h-5 text-blue-500 group-hover:scale-110 transition-transform" 
-              />
-            </a>
-          ))}
+        <h4 class='font-bold mb-4'>{t('footer.follow')}</h4>
+        <div class='flex gap-4'>
+          {
+            socialLinks.map((social) => (
+              <a
+                href={social.href}
+                target='_blank'
+                rel='noopener noreferrer'
+                class='w-10 h-10 rounded-full bg-white/80 flex items-center justify-center hover:bg-primary/70 transition-all duration-300 group'
+                aria-label={social.platform}
+                title={social.platform}
+              >
+                <img
+                  src={social.icon}
+                  alt={social.platform}
+                  class='w-5 h-5 text-blue-500 group-hover:scale-110 transition-transform'
+                />
+              </a>
+            ))
+          }
         </div>
       </div>
     </div>
-    <div class="pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
-      &copy; {new Date().getFullYear()} {siteConfig.title}. All rights reserved.
+    <div
+      class='pt-8 border-t border-gray-800 text-center text-gray-500 text-sm'
+    >
+      &copy; {new Date().getFullYear()}
+      {siteConfig.title}. All rights reserved.
     </div>
   </div>
 </footer>
