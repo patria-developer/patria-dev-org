@@ -10,6 +10,7 @@ export default defineConfig({
   title: 'Patria Dev Studio',
   projectId,
   dataset,
+  basePath: "/admin",
   plugins: [structureTool()],
   schema: {
     types: schemaTypes,
