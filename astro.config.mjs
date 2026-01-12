@@ -26,6 +26,36 @@ export default defineConfig({
     }),
   ],
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            // Sanity packages
+            if (id.includes('node_modules/sanity') || 
+                id.includes('node_modules/@sanity')) {
+              return 'sanity-vendor';
+            }
+            
+            // React packages
+            if (id.includes('node_modules/react') || 
+                id.includes('node_modules/react-dom')) {
+              return 'react-vendor';
+            }
+            
+            // GSAP
+            if (id.includes('node_modules/gsap')) {
+              return 'gsap-vendor';
+            }
+            
+            // Other large vendors
+            if (id.includes('node_modules/')) {
+              return 'vendor';
+            }
+          }
+        }
+      },
+      chunkSizeWarningLimit: 500
+    }
   }
 });
