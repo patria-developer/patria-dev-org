@@ -1,19 +1,23 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
-import vercel from '@astrojs/vercel';
-import tailwindcss from '@tailwindcss/vite';
-import sanity from '@sanity/astro';
-import react from '@astrojs/react';
-import { loadEnv } from 'vite';
+import react from '@astrojs/react'
+import vercel from '@astrojs/vercel'
+import sanity from '@sanity/astro'
+import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'astro/config'
+import { loadEnv } from 'vite'
 
-const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), "");
+const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
+  process.env.NODE_ENV || 'development',
+  process.cwd(),
+  ''
+)
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'static',
+  output: 'server',
   adapter: vercel({
     webAnalytics: {
-      enabled: true,
+      enabled: false,
     },
   }),
   integrations: [
@@ -23,39 +27,29 @@ export default defineConfig({
       dataset: PUBLIC_SANITY_DATASET,
       useCdn: true,
       studioBasePath: '/admin',
-    }),
+    })
   ],
   vite: {
     plugins: [tailwindcss()],
     build: {
+      chunkSizeWarningLimit: 7000,
       rollupOptions: {
         output: {
           manualChunks(id) {
             // Sanity packages
-            if (id.includes('node_modules/sanity') || 
-                id.includes('node_modules/@sanity')) {
-              return 'sanity-vendor';
+            if (
+              id.includes('node_modules/sanity') ||
+              id.includes('node_modules/@sanity')
+            ) {
+              return 'sanity-vendor'
             }
-            
-            // React packages
-            if (id.includes('node_modules/react') || 
-                id.includes('node_modules/react-dom')) {
-              return 'react-vendor';
-            }
-            
-            // GSAP
+
             if (id.includes('node_modules/gsap')) {
-              return 'gsap-vendor';
+              return 'gsap-vendor'
             }
-            
-            // Other large vendors
-            if (id.includes('node_modules/')) {
-              return 'vendor';
-            }
-          }
-        }
+          },
+        },
       },
-      chunkSizeWarningLimit: 4000
-    }
-  }
-});
+    },
+  },
+})
